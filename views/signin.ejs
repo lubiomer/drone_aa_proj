@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>Sign In</title>
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700" rel="stylesheet" type="text/css" />
+    <link href="css/styles.css" rel="stylesheet" />
+</head>
+
+<body id="page-top">
+    
+    <%- include('partials/homeHeader') %>
+    <!-- Masthead-->
+    <header class="masthead">
+        <div class="container">
+            <div class="sign-panel">
+                <form class="sign-form needs-validation" id="signinForm" method="POST" action="/signin" novalidate>
+                    <div class="mb-3">
+                      <label for="email" class="form-label form-floating">Email</label>
+                      <input type="email" class="form-control" id="email" name="email" required />
+                      <div class="invalid-feedback">
+                        Please input a email.
+                    </div>
+                    </div>
+                    <div class="mb-3">
+                      <label for="password" class="form-label">Password</label>
+                      <input type="password" class="form-control" id="password" name="password" required />
+                      <div class="invalid-feedback">
+                        Please input a password.
+                    </div>
+                    </div>
+                    <button type="button" id="signin_btn" class="btn btn-primary">Submit</button>
+                  </form>
+            </div>
+        </div>
+
+        <%- include('partials/footer') %>
+    </header>
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <!-- Bootstrap core JS-->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Core theme JS-->
+    <script src="js/scripts.js"></script>
+    <script src="js/form-validation.js"></script>
+    <script>
+        $("#signin_btn").on("click", function (e) {
+            var form = $("#signinForm");
+            console.log(form[0])
+            if (form[0].checkValidity() === false) {
+                e.preventDefault();
+                e.stopPropagation();
+                form[0].classList.add("was-validated");
+                return;
+            }
+            let data = {
+                email: $("#email").val(),
+                password: $("#password").val(),
+            }
+            $.ajax({
+                type: 'post',
+                url: '/signin',
+                data: data,
+                success: function (result) {
+                    if (result.status == "success") {
+                        localStorage.setItem('accessToken', result.response.accessToken);
+                        localStorage.setItem('userData', JSON.stringify(result.response.userData));
+                        document.cookie = `token=${result.response.accessToken}`;
+                        if (result.response.userData.role == "admin") {
+                            location.href = "/";
+                        } else if (result.response.userData.role == "user") {
+                            location.href = "/";
+                        }
+                    } else {
+                        $("#errorMsg").html(
+                            '<div class="alert alert-card alert-danger" role="alert">' +
+                            '<strong class="text-capitalize">' + result.message + '</strong>' +
+                            '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
+                            '<span aria-hidden="true">×</span>' +
+                            '</button>' +
+                            '</div>'
+                        );
+                    }
+
+                }
+            });
+
+        });
+    </script>
+</body>
+
+</html>
